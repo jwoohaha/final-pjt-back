@@ -3,7 +3,6 @@ from .models import Movie
 
 
 class MovieSerializer(serializers.ModelSerializer):
-    actors = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = Movie
