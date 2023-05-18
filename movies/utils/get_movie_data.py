@@ -8,11 +8,18 @@ TMDB에서 영화 데이터를 받아와서 fixures에 json으로 저장하는 �
 '''
 
 # API Key
-api_key = os.environ.get('TMDB_API_KEY')
+# api_key = os.environ.get('TMDB_API_KEY')
+api_key = "a24275eaaea1118ecc0e95751086b277"
 
 # API URL
-url = f"https://api.themoviedb.org/3/movie/popular?api_key={api_key}&language=ko-KR&page="
-
+url = f"https://api.themoviedb.org/3/movie/popular"
+params = {
+    'api_key': api_key,
+    'sort_by': 'vote_average.desc',
+    'vote_count.gte': 100,
+    'language':'ko-KR',
+    'page': 1
+}
 # Number of pages to retrieve
 num_pages = 50
 
@@ -21,7 +28,8 @@ movies = []
 
 # Loop through pages and retrieve movie data
 for page in range(1, num_pages+1):
-    response = requests.get(url + str(page))
+    params["page"] = page
+    response = requests.get(url, params=params)
     data = json.loads(response.text)
     movies += data["results"]
 
