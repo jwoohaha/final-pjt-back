@@ -7,6 +7,16 @@ from .serializers import MovieSerializer, MovieListSerializer
 
 
 @api_view(['GET'])
+def movie_list_popular(request):
+    '''
+    최근 인기 있는 상위 20개 영화 데이터를 응답
+    '''
+    movies = get_list_or_404(Movie.objects.order_by('id')[:20])
+    serializer = MovieListSerializer(movies, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
 def movie_list_top20(request):
     '''
     평점 순으로 상위 20개 영화 데이터를 응답
