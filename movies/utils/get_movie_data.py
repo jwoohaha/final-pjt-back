@@ -44,6 +44,7 @@ for movie in movies:
             "genres": movie["genre_ids"],
             "popularity": movie["popularity"],
             "poster_path": movie["poster_path"],
+            "backdrop_path": movie["backdrop_path"],
             "release_date": movie.get("release_date"),
             "vote_average": movie["vote_average"],
         }

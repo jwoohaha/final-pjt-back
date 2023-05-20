@@ -32,6 +32,26 @@ def article_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+@api_view(['GET', 'POST'])
+def movie_article_list(request, movie_pk):
+    '''
+    해당하는 영화의 평(article)을 모두 가져옴
+    '''
+
+    if request.method == 'GET':
+        # articles = Article.objects.all()
+        articles = get_list_or_404(Article, movie=movie_pk)
+        serializer = ArticleListSerializer(articles, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = ArticleSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            # serializer.save()
+            serializer.save(user=request.user, movie=request.movie)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
 @api_view(['GET', 'DELETE', 'PUT'])
 def article_detail(request, article_pk):
     # article = Article.objects.get(pk=article_pk)
