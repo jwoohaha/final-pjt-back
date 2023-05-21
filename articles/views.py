@@ -12,6 +12,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404, get_list_or_404
 from .serializers import ArticleListSerializer, ArticleSerializer, CommentSerializer
 from .models import Article, Comment
+from movies.models import MovieRating
 
 
 
@@ -28,14 +29,15 @@ def article_list(request):
         serializer = ArticleSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             # serializer.save()
-            serializer.save(user=request.user)
+            serializer.save(user=request.user, movie=1)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET', 'POST'])
 def movie_article_list(request, movie_pk):
     '''
-    해당하는 영화의 평(article)을 모두 가져옴
+    GET: 해당하는 영화의 감상평(article)을 모두 가져옴
+    POST: 영화의 감상평을 작성
     '''
 
     if request.method == 'GET':
@@ -45,6 +47,8 @@ def movie_article_list(request, movie_pk):
         return Response(serializer.data)
     
     elif request.method == 'POST':
+        MovieRating.objects.create(user = request.user, movie = request.movie, rating = request.rating)
+        
         serializer = ArticleSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             # serializer.save()
