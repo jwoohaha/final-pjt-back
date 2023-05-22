@@ -16,8 +16,7 @@ from movies.models import Movie
 
 
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@api_view(['GET', 'POST', 'DELETE'])
 def article_list(request):
     if request.method == 'GET':
         # articles = Article.objects.all()
@@ -25,7 +24,8 @@ def article_list(request):
         serializer = ArticleListSerializer(articles, many=True)
         return Response(serializer.data)
 
-@api_view(['POST'])
+
+@api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def article_delete(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk)
@@ -47,15 +47,16 @@ def movie_article_list(request, movie_pk):
         return Response(serializer.data)
     
     elif request.method == 'POST':
+        movie = get_object_or_404(Movie, pk=movie_pk)
+        articles = Article.objects.all().filter(user=request.user, movie=movie_pk)
+        # article = get_list_or_404(Article, movie=movie, user=request.user)
         serializer = ArticleSerializer(data=request.data)
-        article = get_list_or_404(Article, movie=movie_pk, user=request.user)
 
-        if article:
+        if articles:
             print('이미 존재함')
-            print(article)
+            print(articles)
             return Response(status=status.HTTP_205_RESET_CONTENT)
 
-        movie = get_object_or_404(Movie, pk=movie_pk)
         if serializer.is_valid(raise_exception=True):
             # serializer.save()
             serializer.save(user=request.user, movie=movie)
