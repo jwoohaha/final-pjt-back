@@ -16,7 +16,7 @@ from movies.models import Movie
 
 
 
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['GET'])
 def article_list(request):
     if request.method == 'GET':
         # articles = Article.objects.all()
@@ -35,7 +35,6 @@ def article_delete(request, article_pk):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
 def movie_article_list(request, movie_pk):
     '''
     GET: 해당하는 영화의 감상평(article)을 모두 가져옴

@@ -24,6 +24,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     comment_set = CommentSerializer(many=True, read_only=True)
     comment_count = serializers.IntegerField(source='comment_set.count', read_only=True)
     username = serializers.CharField(source='user.username', read_only=True)
+    movie_title = serializers.CharField(source='movie.title', read_only=True)
 
     class Meta:
         model = Article
