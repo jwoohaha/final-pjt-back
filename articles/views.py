@@ -12,6 +12,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404, get_list_or_404
 from .serializers import ArticleListSerializer, ArticleSerializer, CommentSerializer
 from .models import Article, Comment
+from movies.models import Movie
 
 
 
@@ -24,20 +25,21 @@ def article_list(request):
         serializer = ArticleListSerializer(articles, many=True)
         return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = ArticleSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            # serializer.save()
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def article_delete(request, article_pk):
+    article = get_object_or_404(Article, pk=article_pk)
+    if request.user == article.user:
+        article.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['GET', 'POST'])
 def movie_article_list(request, movie_pk):
     '''
-    해당하는 영화의 평(article)을 모두 가져옴
+    GET: 해당하는 영화의 감상평(article)을 모두 가져옴
+    POST: 해당 영화의 감상평을 작성
     '''
-
     if request.method == 'GET':
         # articles = Article.objects.all()
         articles = get_list_or_404(Article, movie=movie_pk)
@@ -46,9 +48,17 @@ def movie_article_list(request, movie_pk):
     
     elif request.method == 'POST':
         serializer = ArticleSerializer(data=request.data)
+        article = get_list_or_404(Article, movie=movie_pk, user=request.user)
+
+        if article:
+            print('이미 존재함')
+            print(article)
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+
+        movie = get_object_or_404(Movie, pk=movie_pk)
         if serializer.is_valid(raise_exception=True):
             # serializer.save()
-            serializer.save(user=request.user, movie=request.movie)
+            serializer.save(user=request.user, movie=movie)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -102,8 +112,6 @@ def comment_detail(request, comment_pk):
             return Response(serializer.data)
 
     
-
-
 @api_view(['POST'])
 def comment_create(request, article_pk):
     # article = Article.objects.get(pk=article_pk)

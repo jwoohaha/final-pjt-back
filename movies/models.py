@@ -15,3 +15,4 @@ class Movie(models.Model):
     backdrop_path = models.CharField(max_length=200)
     release_date = models.DateField()
     vote_average = models.FloatField()
+    
