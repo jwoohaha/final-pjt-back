@@ -35,6 +35,7 @@ def article_delete(request, article_pk):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def movie_article_list(request, movie_pk):
     '''
     GET: 해당하는 영화의 감상평(article)을 모두 가져옴
