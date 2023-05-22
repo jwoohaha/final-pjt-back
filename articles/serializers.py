@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Article, Comment
-from movies.models import MovieRating
 
 
 class ArticleListSerializer(serializers.ModelSerializer):
@@ -29,13 +28,3 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = '__all__'
         read_only_fields = ('user', )
-
-
-class MovieRatingSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username', read_only=True)
-    movie = serializers.CharField(source='user.', read_only=True)
-
-    class Meta:
-        model = MovieRating
-        fields = '__all__'
-        read_only_fields = ('username', 'movie', 'rating')

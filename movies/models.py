@@ -15,9 +15,4 @@ class Movie(models.Model):
     backdrop_path = models.CharField(max_length=200)
     release_date = models.DateField()
     vote_average = models.FloatField()
-
-
-class MovieRating(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
-    rating = models.FloatField()
+    
