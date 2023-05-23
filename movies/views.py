@@ -34,3 +34,13 @@ def movie_detail(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     serializer = MovieSerializer(movie)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def movie_search(request, search_string):
+    '''
+    제목에 search_string을 포함하는 모든 영화를 리턴
+    '''
+    search_movie_list = Movie.objects.filter(title__icontains=search_string)
+    serializer = MovieListSerializer(search_movie_list, many=True)
+    return Response(serializer.data)
