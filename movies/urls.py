@@ -6,4 +6,5 @@ urlpatterns = [
     path('rating_top20/', views.movie_list_top20),
     path('<int:movie_pk>/', views.movie_detail),
     path('<str:search_string>/', views.movie_search),
+    path('recommend/<int:user_pk>/', views.movie_recommend),
 ]

@@ -5,11 +5,12 @@ from .models import Article, Comment
 class ArticleListSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     movie_title = serializers.CharField(source='movie.title', read_only=True)
+    movie_id = serializers.CharField(source='movie.id', read_only=True)
 
     class Meta:
         model = Article
         # fields = ('id', 'title', 'content')
-        fields = ('id', 'content', 'user', 'username', 'rating', 'movie_title')
+        fields = ('id', 'content', 'user', 'username', 'rating', 'movie_title', 'movie_id')
 
 
 class CommentSerializer(serializers.ModelSerializer):
