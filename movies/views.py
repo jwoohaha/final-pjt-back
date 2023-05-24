@@ -9,7 +9,7 @@ from .serializers import MovieSerializer, MovieListSerializer
 from articles.serializers import ArticleListSerializer
 
 from collections import defaultdict
-
+import random
 
 @api_view(['GET'])
 def movie_list_popular(request):
@@ -24,10 +24,12 @@ def movie_list_popular(request):
 @api_view(['GET'])
 def movie_list_top20(request):
     '''
-    평점 순으로 상위 20개 영화 데이터를 응답
+    평점 순으로 상위 100개 중 랜덤으로 영화 20개의 데이터를 응답
     '''
-    movies = get_list_or_404(Movie.objects.order_by('-vote_average')[:20])
-    serializer = MovieListSerializer(movies, many=True)
+    movies = get_list_or_404(Movie.objects.order_by('-vote_average')[:100])
+    random.shuffle(movies)
+    random_movies = movies[:20]
+    serializer = MovieListSerializer(random_movies, many=True)
     return Response(serializer.data)
 
 
@@ -71,7 +73,7 @@ def movie_recommend(request, user_pk):
 
     # 개인화 된 점수를 계산하여 정렬
     # 평점 기반 선호 장르 + popularity + vote_average 고려 
-    recommend_candidates = get_list_or_404(Movie.objects.order_by('-vote_average')[:200])
+    recommend_candidates = get_list_or_404(Movie.objects.order_by('-vote_average')[:500])
     personalized_score = []
     
     for cand in recommend_candidates:
@@ -81,12 +83,16 @@ def movie_recommend(request, user_pk):
             score += genre_count[genre.id]
         personalized_score.append((score, cand, cand.pk, cand.title))
 
-    personalized_score.sort(reverse=True)
+    # 개인화 점수 상위 100개 중 랜덤으로 영화 20개 정보 리턴
+    personalized_score.sort(reverse=True, key=lambda x: x[0])
+    billboard = personalized_score[:100]
+    random.shuffle(billboard)
+    billboard = billboard[:20]
+    billboard.sort(reverse=True, key=lambda x: x[0])
     recommend_list = []
 
-    # 개인화 점수 상위 20개 영화 정보 리턴
     for i in range(20):
-        recommend_list.append(personalized_score[i][1])
+        recommend_list.append(billboard[i][1])
 
     serializer = MovieListSerializer(recommend_list, many=True)
     return Response(serializer.data)
