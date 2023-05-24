@@ -1,3 +1,33 @@
-from django.shortcuts import render
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from .serializers import UserSerializer
+from django.http import HttpResponse
+from rest_framework.response import Response
 
-# Create your views here.
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def update_user(request):
+    if request.method == 'PUT':
+        username = request.data.get('username')
+        new_nickname = request.data.get('nickname')
+        new_profile = request.data.get('profile')
+
+        User = get_user_model()
+        user = get_object_or_404(User, username=username)
+
+        # 토큰 인증을 위해 request.user를 사용하여 현재 사용자를 가져올 수 있습니다.
+        # request.user는 인증된 사용자 객체입니다.
+        if request.user == user:
+            user.nickname = new_nickname
+            user.profile = new_profile
+            user.save()
+    elif request.method == 'GET':
+        user = request.user
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
+    return HttpResponse('Invalid request', status=400)  # 잘못된 요청 응답
+
+
