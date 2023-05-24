@@ -5,5 +5,4 @@ app_name = 'accounts'
 
 urlpatterns = [
     path('update/', views.update_user),
-    path('update/img/', views.update_user_img),
 ]
