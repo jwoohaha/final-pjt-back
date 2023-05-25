@@ -2,11 +2,9 @@ from django.shortcuts import get_object_or_404, get_list_or_404
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
 from .models import Movie, Genre
 from articles.models import Article
 from .serializers import MovieSerializer, MovieListSerializer
-from articles.serializers import ArticleListSerializer
 
 from collections import defaultdict
 import random
@@ -79,7 +77,7 @@ def movie_recommend(request, user_pk):
     personalized_score = []
     
     for cand in recommend_candidates:
-        score = cand.popularity + cand.vote_average
+        score = cand.popularity//1000 + (cand.vote_average)*50
         genre_list = get_list_or_404(Genre, movie=cand.id)
         for genre in genre_list:
             score += genre_count[genre.id]
@@ -87,7 +85,7 @@ def movie_recommend(request, user_pk):
 
     # 개인화 점수 상위 100개 중 랜덤으로 영화 20개 정보 리턴
     personalized_score.sort(reverse=True, key=lambda x: x[0])
-    billboard = personalized_score[:100]
+    billboard = personalized_score[:40]
     random.shuffle(billboard)
     billboard = billboard[:20]
     billboard.sort(reverse=True, key=lambda x: x[0])
@@ -106,7 +104,7 @@ def movie_recommend_mixed(request, user1_name, user2_name):
     사용자 2명 취향에 맞는 영화 리스트 리턴
     '''
 
-    # user가 남긴 감상평을 토대로 장르별 평점 반영
+    # user가 남긴 감상평을 토대로 장르별 평점 반영https://ssense.github.io/vue-carousel/guide/
     genre_count = defaultdict(int)
     
     def get_genre_preference(user_name):
@@ -124,18 +122,18 @@ def movie_recommend_mixed(request, user1_name, user2_name):
             genre_list = get_list_or_404(Genre, movie=movie.id)
             for genre in genre_list:
                 # 평점 5 이하는 -, 5 이상은 + 감상평 개수로 나눠주어 가중치 반영
-                genre_count[genre.id] += (rating - 5) / n
+                genre_count[genre.id] += ((rating - 5) / n) ** 2
 
     get_genre_preference(user1_name)
     get_genre_preference(user2_name)
 
     # 개인화 된 점수를 계산하여 정렬
-    # 평점 기반 선호 장르 + popularity + vote_average 고려 
     recommend_candidates = get_list_or_404(Movie.objects.order_by('-vote_average')[:500])
     personalized_score = []
     
+    # 영화마다 점수를 계산 평점 기반 선호 장르 + popularity + vote_average 고려 
     for cand in recommend_candidates:
-        score = cand.popularity + cand.vote_average
+        score = cand.popularity/1000 + cand.vote_average * 5
         genre_list = get_list_or_404(Genre, movie=cand.id)
         for genre in genre_list:
             score += genre_count[genre.id]
@@ -143,7 +141,7 @@ def movie_recommend_mixed(request, user1_name, user2_name):
 
     # 개인화 점수 상위 100개 중 랜덤으로 영화 20개 정보 리턴
     personalized_score.sort(reverse=True, key=lambda x: x[0])
-    billboard = personalized_score[:100]
+    billboard = personalized_score[:40]
     random.shuffle(billboard)
     billboard = billboard[:20]
     billboard.sort(reverse=True, key=lambda x: x[0])

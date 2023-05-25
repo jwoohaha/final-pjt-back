@@ -15,7 +15,6 @@ from .models import Article, Comment
 from movies.models import Movie
 
 
-
 @api_view(['GET'])
 def article_list(request):
     if request.method == 'GET':
@@ -53,8 +52,6 @@ def movie_article_list(request, movie_pk):
         serializer = ArticleSerializer(data=request.data)
 
         if articles:
-            print('이미 존재함')
-            print(articles)
             return Response(status=status.HTTP_205_RESET_CONTENT)
 
         if serializer.is_valid(raise_exception=True):
@@ -70,7 +67,6 @@ def article_detail(request, article_pk):
 
     if request.method == 'GET':
         serializer = ArticleSerializer(article)
-        print(serializer.data)
         return Response(serializer.data)
     
     elif request.method == 'DELETE':
