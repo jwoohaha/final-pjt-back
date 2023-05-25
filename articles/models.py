@@ -3,7 +3,7 @@ from django.conf import settings
 from movies.models import Movie
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-# Create your models here.
+
 class Article(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='articles', null=True)

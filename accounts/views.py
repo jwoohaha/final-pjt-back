@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 @api_view(['GET', 'PUT'])
 def update_user(request, user_name):
+    # user 정보를 수정
     if request.method == 'PUT':
         new_nickname = request.data.get('nickname')
         new_profile = request.data.get('profile')
@@ -27,6 +28,7 @@ def update_user(request, user_name):
             user.save()
             return HttpResponse('Good boy!', status=200)  # 잘해썽 요청 응답
 
+    # 해당 user 정보를 받아옴
     elif request.method == 'GET':
         User = get_user_model()
         user = get_object_or_404(User, username=user_name)
