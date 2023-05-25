@@ -30,6 +30,7 @@ def movie_list_top20(request):
     movies = get_list_or_404(Movie.objects.order_by('-vote_average')[:100])
     random.shuffle(movies)
     random_movies = movies[:20]
+    print(random_movies)
     serializer = MovieListSerializer(random_movies, many=True)
     return Response(serializer.data)
 
