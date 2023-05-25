@@ -25,6 +25,8 @@ def update_user(request):
             user.profile = new_profile
             user.profile_img = new_profile_img
             user.save()
+            return HttpResponse('Good boy!', status=200)  # 잘해썽 요청 응답
+
     elif request.method == 'GET':
         user = request.user
         serializer = UserSerializer(user)
