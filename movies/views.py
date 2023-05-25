@@ -58,7 +58,6 @@ def movie_recommend(request, user_pk):
     '''
     사용자 취향에 맞는 영화 리스트 리턴
     '''
-
     # user가 남긴 감상평을 토대로 장르별 평점 반영
     article_list = get_list_or_404(Article, user=user_pk)  # user가 남긴 감상평
     n = len(article_list)
@@ -68,7 +67,7 @@ def movie_recommend(request, user_pk):
         rating = article_list[i].rating
         genre_list = get_list_or_404(Genre, movie=movie.id)
         for genre in genre_list:
-            genre_count[genre.id] += rating - 5
+            genre_count[genre.id] += ((rating - 5) / n)
 
 
     # 개인화 된 점수를 계산하여 정렬
@@ -80,7 +79,7 @@ def movie_recommend(request, user_pk):
         score = cand.popularity//1000 + (cand.vote_average)*50
         genre_list = get_list_or_404(Genre, movie=cand.id)
         for genre in genre_list:
-            score += genre_count[genre.id]
+            score += genre_count[genre.id] * 100
         personalized_score.append((score, cand, cand.pk, cand.title))
 
     # 개인화 점수 상위 100개 중 랜덤으로 영화 20개 정보 리턴
@@ -122,7 +121,7 @@ def movie_recommend_mixed(request, user1_name, user2_name):
             genre_list = get_list_or_404(Genre, movie=movie.id)
             for genre in genre_list:
                 # 평점 5 이하는 -, 5 이상은 + 감상평 개수로 나눠주어 가중치 반영
-                genre_count[genre.id] += ((rating - 5) / n) ** 2
+                genre_count[genre.id] += ((rating - 5) / n)
 
     get_genre_preference(user1_name)
     get_genre_preference(user2_name)
@@ -133,10 +132,10 @@ def movie_recommend_mixed(request, user1_name, user2_name):
     
     # 영화마다 점수를 계산 평점 기반 선호 장르 + popularity + vote_average 고려 
     for cand in recommend_candidates:
-        score = cand.popularity/1000 + cand.vote_average * 5
+        score = cand.popularity//1000 + cand.vote_average * 50
         genre_list = get_list_or_404(Genre, movie=cand.id)
         for genre in genre_list:
-            score += genre_count[genre.id]
+            score += genre_count[genre.id] * 100
         personalized_score.append((score, cand, cand.pk, cand.title))
 
     # 개인화 점수 상위 100개 중 랜덤으로 영화 20개 정보 리턴
