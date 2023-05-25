@@ -47,14 +47,14 @@ def movie_article_list(request, movie_pk):
     
     elif request.method == 'POST':
         movie = get_object_or_404(Movie, pk=movie_pk)
-        articles = Article.objects.all().filter(user=request.user, movie=movie_pk)
-        # article = get_list_or_404(Article, movie=movie, user=request.user)
+        article = Article.objects.all().filter(user=request.user, movie=movie_pk)
         serializer = ArticleSerializer(data=request.data)
 
-        if articles:
+        if article:
+            # 이미 평점이 있는 경우 중복으로 평점을 남기는 것을 방지
             return Response(status=status.HTTP_205_RESET_CONTENT)
 
-        if serializer.is_valid(raise_exception=True):
+        elif serializer.is_valid(raise_exception=True):
             # serializer.save()
             serializer.save(user=request.user, movie=movie)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
