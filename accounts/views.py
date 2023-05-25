@@ -13,6 +13,7 @@ def update_user(request):
         username = request.data.get('username')
         new_nickname = request.data.get('nickname')
         new_profile = request.data.get('profile')
+        new_profile_img = request.data.get('profile_img')
 
         User = get_user_model()
         user = get_object_or_404(User, username=username)
@@ -22,14 +23,16 @@ def update_user(request):
         if request.user == user:
             user.nickname = new_nickname
             user.profile = new_profile
+            user.profile_img = new_profile_img
             user.save()
+            return HttpResponse('Good boy!', status=200)  # 잘해썽 요청 응답
+
     elif request.method == 'GET':
         user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
     return HttpResponse('Invalid request', status=400)  # 잘못된 요청 응답
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
