@@ -11,6 +11,7 @@ from articles.serializers import ArticleListSerializer
 from collections import defaultdict
 import random
 
+
 @api_view(['GET'])
 def movie_list_popular(request):
     '''
@@ -49,7 +50,7 @@ def movie_search(request, search_string):
     제목에 search_string을 포함하는 모든 영화를 리턴
     '''
     search_movie_list = Movie.objects.filter(title__icontains=search_string)
-    serializer = MovieListSerializer(search_movie_list, many=True)
+    serializer = MovieSerializer(search_movie_list, many=True)
     return Response(serializer.data)
 
 
@@ -99,7 +100,7 @@ def movie_recommend(request, user_pk):
 
 
 @api_view(['GET'])
-def movie_recommend_mixed(request, user1_pk, user2_pk):
+def movie_recommend_mixed(request, user1_name, user2_name):
     '''
     사용자 2명 취향에 맞는 영화 리스트 리턴
     '''
@@ -107,7 +108,13 @@ def movie_recommend_mixed(request, user1_pk, user2_pk):
     # user가 남긴 감상평을 토대로 장르별 평점 반영
     genre_count = defaultdict(int)
     
-    def get_genre_preference(user_pk):
+    def get_genre_preference(user_name):
+        # 해당 유저의 pk를 받아옴
+        User = get_user_model()
+        user = get_object_or_404(User, username=user_name)
+        user_pk = user.pk
+
+        # 감상평을 순회하며 장르별로 평점을 더해줌
         article_list = get_list_or_404(Article, user=user_pk)
         n = len(article_list)
         for i in range(n):
@@ -118,9 +125,8 @@ def movie_recommend_mixed(request, user1_pk, user2_pk):
                 # 평점 5 이하는 -, 5 이상은 + 감상평 개수로 나눠주어 가중치 반영
                 genre_count[genre.id] += (rating - 5) / n
 
-    get_genre_preference(user1_pk)
-    get_genre_preference(user2_pk)
-
+    get_genre_preference(user1_name)
+    get_genre_preference(user2_name)
 
     # 개인화 된 점수를 계산하여 정렬
     # 평점 기반 선호 장르 + popularity + vote_average 고려 
