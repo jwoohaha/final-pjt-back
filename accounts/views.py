@@ -33,3 +33,12 @@ def update_user(request):
         return Response(serializer.data)
 
     return HttpResponse('Invalid request', status=400)  # 잘못된 요청 응답
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_id(request):
+    User = get_user_model()
+    user = get_object_or_404(User, username=request.user)
+    print(user)
+    print('user_id:', user.id)
+    return Response({'user_id': user.id})

@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
+from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -66,22 +67,26 @@ def movie_recommend(request, user_pk):
         genre_list = get_list_or_404(Genre, movie=movie.id)
         for genre in genre_list:
             genre_count[genre.id] += rating - 5
-    # print(genre_count)
 
-    recommend_candidates = get_list_or_404(Movie.objects.order_by('-vote_average')[:200])
-    personalized_score = []
+
     # 개인화 된 점수를 계산하여 정렬
     # 평점 기반 선호 장르 + popularity + vote_average 고려 
+    recommend_candidates = get_list_or_404(Movie.objects.order_by('-vote_average')[:200])
+    personalized_score = []
+    
     for cand in recommend_candidates:
-        score = cand.popularity/1000 + cand.vote_average
+        score = cand.popularity + cand.vote_average
         genre_list = get_list_or_404(Genre, movie=cand.id)
         for genre in genre_list:
-            score += genre_count[genre.id] * 100000
+            score += genre_count[genre.id]
         personalized_score.append((score, cand, cand.pk, cand.title))
+
     personalized_score.sort(reverse=True)
     recommend_list = []
+
+    # 개인화 점수 상위 20개 영화 정보 리턴
     for i in range(20):
         recommend_list.append(personalized_score[i][1])
-    print(recommend_list)
+
     serializer = MovieListSerializer(recommend_list, many=True)
     return Response(serializer.data)
